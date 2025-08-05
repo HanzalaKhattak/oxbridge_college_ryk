@@ -1,0 +1,201 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  role      Role     @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  student   Student?
+  staff     Staff?
+  
+  @@map("users")
+}
+
+model Student {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique
+  studentId      String   @unique
+  name           String
+  fatherName     String
+  cnic           String
+  dateOfBirth    DateTime
+  phone          String
+  address        String
+  photoUrl       String?
+  program        String
+  session        String
+  admissionDate  DateTime @default(now())
+  status         StudentStatus @default(ACTIVE)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  // Relations
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  admissions     Admission[]
+  feeRecords     FeeRecord[]
+  results        Result[]
+  
+  @@map("students")
+}
+
+model Staff {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique
+  staffId     String   @unique
+  name        String
+  designation String
+  department  String
+  phone       String
+  photoUrl    String?
+  joinDate    DateTime
+  salary      Decimal
+  status      StaffStatus @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("staff")
+}
+
+model Admission {
+  id                Int      @id @default(autoincrement())
+  studentId         Int
+  applicationNumber String   @unique
+  previousSchool    String
+  obtainedMarks     Int
+  totalMarks        Int
+  percentage        Decimal
+  subjects          String   // JSON string of selected subjects
+  documents         String?  // JSON string of document URLs
+  status            AdmissionStatus @default(PENDING)
+  submittedAt       DateTime @default(now())
+  processedAt       DateTime?
+  remarks           String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  student           Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  @@map("admissions")
+}
+
+model FeeRecord {
+  id               Int      @id @default(autoincrement())
+  studentId        Int
+  feeType          String   // "MONTHLY", "ADMISSION", "EXAM", "LIBRARY", etc.
+  month            String?  // "2024-01" for monthly fees
+  amount           Decimal
+  dueDate          DateTime
+  paidDate         DateTime?
+  status           FeeStatus @default(PENDING)
+  paymentMethod    String?  // "CASH", "BANK", "ONLINE"
+  receiptNumber    String?
+  remarks          String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  // Relations
+  student          Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  @@map("fee_records")
+}
+
+model Result {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  examType  String   // "MONTHLY", "MIDTERM", "FINAL", "ANNUAL"
+  subject   String
+  maxMarks  Int
+  obtMarks  Int
+  grade     String?
+  examDate  DateTime
+  session   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  @@map("results")
+}
+
+model Achievement {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String   @db.Text
+  category    String   // "ACADEMIC", "SPORTS", "CULTURAL", "COMMUNITY"
+  imageUrl    String?
+  date        DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("achievements")
+}
+
+model Announcement {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String   @db.Text
+  type      String   // "GENERAL", "URGENT", "EVENT", "EXAM"
+  imageUrl  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("announcements")
+}
+
+// Enums
+enum Role {
+  STUDENT
+  STAFF
+  ADMIN
+}
+
+enum StudentStatus {
+  ACTIVE
+  INACTIVE
+  GRADUATED
+  DROPPED
+}
+
+enum StaffStatus {
+  ACTIVE
+  INACTIVE
+  TERMINATED
+}
+
+enum AdmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  WAITLISTED
+}
+
+enum FeeStatus {
+  PENDING
+  PAID
+  OVERDUE
+  PARTIAL
+}

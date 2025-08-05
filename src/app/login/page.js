@@ -9,6 +9,7 @@ const Login = () => {
     password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const router = useRouter();
 
   const handleInputChange = (e) => {
@@ -22,18 +23,32 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     
-    // Simulate API call
-    setTimeout(() => {
-      // For demo purposes, any email/password combination will work
-      if (formData.email && formData.password) {
-        alert('Login successful! Redirecting to dashboard...');
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
         router.push('/dashboard');
       } else {
-        alert('Please fill in all fields');
+        setError(data.error || 'Login failed');
       }
+    } catch (error) {
+      setError('Network error. Please try again.');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -67,6 +82,11 @@ const Login = () => {
               placeholder="Enter your password"
             />
           </div>
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded">
+              <p className="text-red-600 text-sm">{error}</p>
+            </div>
+          )}
           <button 
             type="submit" 
             disabled={isLoading}

@@ -62,7 +62,7 @@ const AdmissionForm = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Check if photo is uploaded
@@ -71,8 +71,43 @@ const AdmissionForm = () => {
       return;
     }
     
-    console.log('Form Data:', formData); // For debugging
-    alert('Admission form submitted successfully! You will receive a confirmation email shortly.');
+    try {
+      const response = await fetch('/api/admission/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(`Admission application submitted successfully!\n\nApplication Number: ${data.applicationNumber}\nStudent ID: ${data.studentId}\nPercentage: ${data.percentage}%\n\nYou will receive a confirmation email shortly.`);
+        
+        // Reset form
+        setFormData({
+          studentName: '',
+          fatherName: '',
+          cnic: '',
+          dateOfBirth: '',
+          email: '',
+          phone: '',
+          address: '',
+          previousSchool: '',
+          obtainedMarks: '',
+          totalMarks: '',
+          program: '',
+          subjects: [],
+          studentPhoto: null
+        });
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      alert('Network error. Please try again.');
+      console.error('Submission error:', error);
+    }
   };
 
   const handlePhotoUpload = (result) => {
