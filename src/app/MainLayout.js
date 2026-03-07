@@ -6,11 +6,13 @@ import { usePathname } from "next/navigation";
 export default function MainLayout({ children }) {
   const pathname = usePathname();
   const hideLayout = pathname === "/login" || pathname === "/signup";
-  
+
   return (
     <>
       {!hideLayout && <Navbar />}
-      {children}
+      <main className={!hideLayout ? "min-h-screen" : ""}>
+        {children}
+      </main>
       {!hideLayout && <Footer />}
     </>
   );

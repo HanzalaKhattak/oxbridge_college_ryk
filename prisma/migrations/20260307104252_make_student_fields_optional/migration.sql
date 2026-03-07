@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE `students` MODIFY `fatherName` VARCHAR(191) NOT NULL DEFAULT '',
+    MODIFY `cnic` VARCHAR(191) NOT NULL DEFAULT '',
+    MODIFY `dateOfBirth` DATETIME(3) NULL,
+    MODIFY `address` VARCHAR(191) NOT NULL DEFAULT '';

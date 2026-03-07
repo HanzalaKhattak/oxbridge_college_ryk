@@ -33,11 +33,11 @@ model Student {
   userId         Int      @unique
   studentId      String   @unique
   name           String
-  fatherName     String
-  cnic           String
-  dateOfBirth    DateTime
+  fatherName     String   @default("")
+  cnic           String   @default("")
+  dateOfBirth    DateTime?
   phone          String
-  address        String
+  address        String   @default("")
   photoUrl       String?
   program        String
   session        String

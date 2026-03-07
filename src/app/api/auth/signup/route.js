@@ -47,11 +47,7 @@ export async function POST(request) {
           userId: user.id,
           studentId,
           name,
-          fatherName: '', // Will be updated during admission
-          cnic: '',
-          dateOfBirth: new Date(), // Placeholder
           phone,
-          address: '',
           program,
           session: `${new Date().getFullYear()}-${new Date().getFullYear() + 2}`
         }
