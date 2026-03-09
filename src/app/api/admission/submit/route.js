@@ -76,7 +76,7 @@ export async function POST(request) {
       where: { studentId: student.id },
       orderBy: { createdAt: 'desc' },
     });
-
+z
     if (existing && existing.status === 'PENDING') {
       return NextResponse.json(
         { error: 'You already have a pending admission application.', applicationNumber: existing.applicationNumber },
