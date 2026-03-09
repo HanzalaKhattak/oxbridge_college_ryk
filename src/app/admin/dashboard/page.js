@@ -13,11 +13,11 @@ export default function AdminDashboard() {
       try {
         const res = await fetch("/api/admin/dashboard");
         if (res.status === 401) {
-          router.push("/login");
+          router.push("/admin/login");
           return;
         }
         if (res.status === 403) {
-          router.push("/dashboard");
+          router.push("/admin/login");
           return;
         }
         if (!res.ok) throw new Error("Failed to load admin dashboard");
@@ -31,17 +31,14 @@ export default function AdminDashboard() {
     fetchDashboard();
   }, [router]);
 
-  const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
-  };
+
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
+      <div className="flex items-center justify-center py-20">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-3 border-maroon-200 border-t-maroon-700 rounded-full animate-spin" />
-          <p className="text-gray-500 text-sm">Loading admin dashboard...</p>
+          <div className="w-8 h-8 border-3 border-maroon-200 border-t-maroon-700 rounded-full animate-spin" />
+          <p className="text-gray-500 text-sm">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -49,7 +46,7 @@ export default function AdminDashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-24 px-4">
+      <div className="py-20 px-4">
         <div className="max-w-2xl mx-auto text-center">
           <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -120,26 +117,14 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-gray-500 text-sm mt-1">
-              Welcome, {data?.admin?.email} &middot; <span className="text-maroon-700 font-medium">Administrator</span>
-            </p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-600 text-sm font-medium hover:bg-gray-50 hover:border-gray-300 transition-colors self-start"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            Sign Out
-          </button>
-        </div>
+    <div>
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+        <p className="text-gray-500 text-sm mt-1">
+          Welcome, {data?.admin?.email} &middot; <span className="text-maroon-700 font-medium">Administrator</span>
+        </p>
+      </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -323,7 +308,6 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }

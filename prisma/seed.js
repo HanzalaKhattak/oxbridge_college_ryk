@@ -59,8 +59,10 @@ async function main() {
 
   // Create sample admin user
   const adminPassword = await hashPassword('admin123');
-  const adminUser = await prisma.user.create({
-    data: {
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'admin@oxbridge.edu.pk' },
+    update: {},
+    create: {
       email: 'admin@oxbridge.edu.pk',
       password: adminPassword,
       role: 'ADMIN'

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { CldUploadWidget } from 'next-cloudinary';
+import Link from 'next/link';
 
 const AdmissionForm = () => {
   const [formData, setFormData] = useState({
@@ -20,6 +21,7 @@ const AdmissionForm = () => {
   });
 
   const [showPrintView, setShowPrintView] = useState(false);
+  const [submissionData, setSubmissionData] = useState(null);
 
   const programs = [
     { value: 'pre-medical', label: 'Pre-Medical (Biology, Chemistry, Physics)' },
@@ -83,24 +85,9 @@ const AdmissionForm = () => {
       const data = await response.json();
 
       if (response.ok) {
-        alert(`Admission application submitted successfully!\n\nApplication Number: ${data.applicationNumber}\nStudent ID: ${data.studentId}\nPercentage: ${data.percentage}%\n\nYou will receive a confirmation email shortly.`);
-        
-        // Reset form
-        setFormData({
-          studentName: '',
-          fatherName: '',
-          cnic: '',
-          dateOfBirth: '',
-          email: '',
-          phone: '',
-          address: '',
-          previousSchool: '',
-          obtainedMarks: '',
-          totalMarks: '',
-          program: '',
-          subjects: [],
-          studentPhoto: null
-        });
+        setSubmissionData(data);
+        // Scroll to top to see the fee slip
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         alert(`Error: ${data.error}`);
       }
@@ -156,7 +143,95 @@ const AdmissionForm = () => {
           `}</style>
         )}
 
-        <div className={`bg-white border border-gray-100 rounded-2xl shadow-sm p-6 sm:p-8 lg:p-10 ${showPrintView ? 'print-section' : ''}`}>
+        {/* Fee Slip - shown after admission submission */}
+        {submissionData && (
+          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 sm:p-8 lg:p-10 mb-8 print-section">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-bold text-gray-900 mb-1">Application Submitted Successfully!</h2>
+              <p className="text-gray-500 text-sm">Please pay the admission fee using the details below and submit the fee slip</p>
+            </div>
+
+            <div className="bg-gray-50 rounded-xl p-5 mb-6">
+              <h3 className="font-semibold text-gray-900 mb-3">Application Details</h3>
+              <div className="grid sm:grid-cols-2 gap-3 text-sm">
+                <div><span className="text-gray-500">Application #:</span> <span className="font-medium">{submissionData.applicationNumber}</span></div>
+                <div><span className="text-gray-500">Student ID:</span> <span className="font-medium">{submissionData.studentId}</span></div>
+                <div><span className="text-gray-500">Name:</span> <span className="font-medium">{submissionData.studentName}</span></div>
+                <div><span className="text-gray-500">Program:</span> <span className="font-medium">{submissionData.program}</span></div>
+                <div><span className="text-gray-500">Percentage:</span> <span className="font-medium">{submissionData.percentage}%</span></div>
+              </div>
+            </div>
+
+            <div className="bg-maroon-50 border border-maroon-100 rounded-xl p-5 mb-6">
+              <h3 className="font-semibold text-maroon-900 mb-3">Admission Fee Slip</h3>
+              <div className="text-center mb-4">
+                <div className="text-3xl font-extrabold text-maroon-900">Rs. {submissionData.bankDetails.admissionFee.toLocaleString()}</div>
+                <div className="text-maroon-600 text-sm mt-1">One-time Admission Fee</div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="bg-white rounded-lg p-4">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Bank Transfer</h4>
+                  <div className="space-y-1.5 text-sm">
+                    <div><span className="text-gray-500">Bank:</span> <span className="font-medium">{submissionData.bankDetails.bankName}</span></div>
+                    <div><span className="text-gray-500">Account Title:</span> <span className="font-medium">{submissionData.bankDetails.accountTitle}</span></div>
+                    <div><span className="text-gray-500">Account #:</span> <span className="font-mono font-medium">{submissionData.bankDetails.accountNumber}</span></div>
+                    <div><span className="text-gray-500">Branch Code:</span> <span className="font-medium">{submissionData.bankDetails.branchCode}</span></div>
+                  </div>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="bg-white rounded-lg p-4">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">Easypaisa</h4>
+                    <div className="text-sm">
+                      <span className="text-gray-500">Account:</span> <span className="font-mono font-medium">{submissionData.bankDetails.easypaisa}</span>
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">JazzCash</h4>
+                    <div className="text-sm">
+                      <span className="text-gray-500">Account:</span> <span className="font-mono font-medium">{submissionData.bankDetails.jazzcash}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 mb-6">
+              <p className="text-amber-800 text-sm font-medium">
+                After paying the fee, please submit the fee slip using the button below. Your admission will be reviewed after the fee is verified. You can check your admission status after 3 hours.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 no-print">
+              <Link
+                href={`/admission/submit-fee-slip?admissionId=${submissionData.admissionId}&applicationNumber=${submissionData.applicationNumber}`}
+                className="flex-1 bg-maroon-900 text-white px-6 py-3 rounded-xl font-semibold text-sm text-center hover:bg-maroon-800 transition-colors"
+              >
+                Submit Fee Slip
+              </Link>
+              <Link
+                href="/admission/status"
+                className="flex-1 bg-white text-gray-700 px-6 py-3 rounded-xl font-semibold text-sm text-center border border-gray-200 hover:bg-gray-50 transition-colors"
+              >
+                Check Admission Status
+              </Link>
+              <button
+                onClick={() => window.print()}
+                className="flex-1 bg-white text-gray-700 px-6 py-3 rounded-xl font-semibold text-sm border border-gray-200 hover:bg-gray-50 transition-colors"
+              >
+                Print Fee Slip
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className={`bg-white border border-gray-100 rounded-2xl shadow-sm p-6 sm:p-8 lg:p-10 ${showPrintView ? 'print-section' : ''} ${submissionData ? 'hidden' : ''}`}>
           <div className="text-center mb-8">
             <div className="flex justify-between items-start mb-6">
               <div className="flex-1 text-left">

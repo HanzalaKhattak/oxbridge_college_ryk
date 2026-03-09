@@ -76,7 +76,7 @@ export async function POST(request) {
       where: { studentId: student.id },
       orderBy: { createdAt: 'desc' },
     });
-z
+
     if (existing && existing.status === 'PENDING') {
       return NextResponse.json(
         { error: 'You already have a pending admission application.', applicationNumber: existing.applicationNumber },
@@ -103,7 +103,19 @@ z
       message: 'Admission application submitted successfully',
       applicationNumber: admission.applicationNumber,
       studentId: student.studentId,
+      studentName: studentName,
+      program,
       percentage,
+      admissionId: admission.id,
+      bankDetails: {
+        bankName: 'Allied Bank Limited (ABL)',
+        accountTitle: 'Oxbridge College Rahim Yar Khan',
+        accountNumber: '0010-0012-3456-7890',
+        branchCode: '0010',
+        admissionFee: 15000,
+        easypaisa: '0300-1234567',
+        jazzcash: '0301-7654321',
+      },
     });
   } catch (error) {
     console.error('Admission submit error:', error);

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 export default function MainLayout({ children }) {
   const pathname = usePathname();
-  const hideLayout = pathname === "/login" || pathname === "/signup";
+  const hideLayout = pathname === "/login" || pathname === "/signup" || pathname.startsWith("/admin");
 
   return (
     <>

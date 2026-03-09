@@ -6,7 +6,6 @@ export async function POST(request) {
   try {
     const { email, password } = await request.json();
 
-    // Validate required fields
     if (!email || !password) {
       return NextResponse.json(
         { error: 'Email and password are required' },
@@ -14,13 +13,8 @@ export async function POST(request) {
       );
     }
 
-    // Find user with student/staff data
     const user = await prisma.user.findUnique({
       where: { email },
-      include: {
-        student: true,
-        staff: true
-      }
     });
 
     if (!user) {
@@ -30,7 +24,13 @@ export async function POST(request) {
       );
     }
 
-    // Verify password
+    if (user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Admin access only. Students please use the student login.' },
+        { status: 403 }
+      );
+    }
+
     const isValid = await verifyPassword(password, user.password);
     if (!isValid) {
       return NextResponse.json(
@@ -39,48 +39,31 @@ export async function POST(request) {
       );
     }
 
-    // Block admin from student login
-    if (user.role === 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Please use the admin login portal' },
-        { status: 403 }
-      );
-    }
-
-    // Generate JWT token
     const token = generateToken({
       userId: user.id,
       email: user.email,
       role: user.role,
-      studentId: user.student?.studentId || null,
-      staffId: user.staff?.staffId || null
     });
 
-    // Create response with token
     const response = NextResponse.json({
-      message: 'Login successful',
+      message: 'Admin login successful',
       user: {
         id: user.id,
         email: user.email,
         role: user.role,
-        name: user.student?.name || user.staff?.name,
-        studentId: user.student?.studentId,
-        staffId: user.staff?.staffId
-      }
+      },
     });
 
-    // Set HTTP-only cookie
     response.cookies.set('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 // 7 days
+      maxAge: 7 * 24 * 60 * 60,
     });
 
     return response;
-
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Admin login error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

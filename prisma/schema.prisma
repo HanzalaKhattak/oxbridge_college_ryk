@@ -50,6 +50,7 @@ model Student {
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   admissions     Admission[]
   feeRecords     FeeRecord[]
+  feeSlips       FeeSlip[]
   results        Result[]
   
   @@map("students")
@@ -95,8 +96,31 @@ model Admission {
   
   // Relations
   student           Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  feeSlip           FeeSlip?
   
   @@map("admissions")
+}
+
+model FeeSlip {
+  id              Int            @id @default(autoincrement())
+  admissionId     Int            @unique
+  studentId       Int
+  paymentMethod   String         // "EASYPAISA", "JAZZCASH", "BANK_TRANSFER"
+  transactionId   String
+  amount          Decimal
+  screenshotUrl   String?
+  status          FeeSlipStatus  @default(PENDING)
+  remarks         String?
+  submittedAt     DateTime       @default(now())
+  reviewedAt      DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  // Relations
+  admission       Admission      @relation(fields: [admissionId], references: [id], onDelete: Cascade)
+  student         Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("fee_slips")
 }
 
 model FeeRecord {
@@ -198,4 +222,10 @@ enum FeeStatus {
   PAID
   OVERDUE
   PARTIAL
+}
+
+enum FeeSlipStatus {
+  PENDING
+  VERIFIED
+  REJECTED
 }

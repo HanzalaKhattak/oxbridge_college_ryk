@@ -2,8 +2,13 @@ import { NextResponse } from 'next/server';
 import { verifyToken } from './src/lib/auth';
 
 export function middleware(request) {
+  // Admin login page should not be protected
+  if (request.nextUrl.pathname === '/admin/login') {
+    return NextResponse.next();
+  }
+
   // Check if this is a protected route
-  const protectedRoutes = ['/dashboard', '/admin', '/api/student', '/api/admin', '/api/fees'];
+  const protectedRoutes = ['/dashboard', '/admin', '/api/student', '/api/admin', '/api/fees', '/admission/submit-fee-slip', '/admission/status'];
   const isProtectedRoute = protectedRoutes.some(route => 
     request.nextUrl.pathname.startsWith(route)
   );
@@ -35,6 +40,8 @@ export const config = {
     '/admin/:path*',
     '/api/student/:path*',
     '/api/admin/:path*',
-    '/api/fees/:path*'
+    '/api/fees/:path*',
+    '/admission/submit-fee-slip',
+    '/admission/status',
   ]
 };
