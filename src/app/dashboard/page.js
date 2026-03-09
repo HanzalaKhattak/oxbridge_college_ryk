@@ -12,9 +12,15 @@ export default function Dashboard() {
   useEffect(() => {
     async function fetchDashboard() {
       try {
+        // First check role to redirect admins
         const res = await fetch("/api/student/dashboard");
         if (res.status === 401) {
           router.push("/login");
+          return;
+        }
+        if (res.status === 404) {
+          // No student record — likely admin or staff, try admin dashboard
+          router.push("/admin/dashboard");
           return;
         }
         if (!res.ok) throw new Error("Failed to load dashboard");

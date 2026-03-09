@@ -3,7 +3,7 @@ import { verifyToken } from './src/lib/auth';
 
 export function middleware(request) {
   // Check if this is a protected route
-  const protectedRoutes = ['/dashboard', '/api/student', '/api/fees'];
+  const protectedRoutes = ['/dashboard', '/admin', '/api/student', '/api/admin', '/api/fees'];
   const isProtectedRoute = protectedRoutes.some(route => 
     request.nextUrl.pathname.startsWith(route)
   );
@@ -32,7 +32,9 @@ export function middleware(request) {
 export const config = {
   matcher: [
     '/dashboard/:path*',
+    '/admin/:path*',
     '/api/student/:path*',
+    '/api/admin/:path*',
     '/api/fees/:path*'
   ]
 };
